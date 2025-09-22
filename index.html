@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warcraft Farm</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="top-bar">
+    <span>🪙 Золото: <span id="gold">0</span></span>
+    <span>🌲 Дерево: <span id="wood">0</span></span>
+  </div>
+
+  <div class="map" id="map"></div>
+
+  <div class="controls">
+    <button onclick="moveLeft()">⬅️</button>
+    <button onclick="farm()">Фармить</button>
+    <button onclick="moveRight()">➡️</button>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
