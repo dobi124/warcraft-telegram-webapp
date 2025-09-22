@@ -4,12 +4,29 @@ let wood = 0;
 let xp = 0;
 let level = 1;
 let heroPos = { x: 2, y: 2 };
+let inventory = [];
+let heroClass = localStorage.getItem("heroClass") || "";
+
+function chooseHero() {
+  if (heroClass) return; // уже выбран
+  const choice = prompt("Выберите класс героя: маг / воин / охотник").toLowerCase();
+  if (["маг", "воин", "охотник"].includes(choice)) {
+    heroClass = choice;
+    localStorage.setItem("heroClass", heroClass);
+    alert("Вы выбрали: " + heroClass);
+  } else {
+    alert("Неверный выбор, попробуйте снова.");
+    chooseHero();
+  }
+}
 
 function updateResources() {
   document.getElementById("gold").textContent = gold;
   document.getElementById("wood").textContent = wood;
   document.getElementById("xp").textContent = xp;
   document.getElementById("level").textContent = level;
+  document.getElementById("class").textContent = heroClass || "не выбран";
+  document.getElementById("inventory").textContent = inventory.join(", ") || "пусто";
 }
 
 function drawMap() {
@@ -23,7 +40,7 @@ function drawMap() {
         cell.classList.add("hero");
         cell.textContent = "🧙";
       } else if (Math.random() < 0.1) {
-        cell.textContent = "👹"; // крип
+        cell.textContent = "👹";
       }
       map.appendChild(cell);
     }
@@ -33,11 +50,13 @@ function drawMap() {
 function moveLeft() {
   if (heroPos.x > 0) heroPos.x--;
   drawMap();
+  saveGame();
 }
 
 function moveRight() {
   if (heroPos.x < 4) heroPos.x++;
   drawMap();
+  saveGame();
 }
 
 function farm() {
@@ -54,6 +73,7 @@ function farm() {
     alert(`Вы срубили дерево: +${gain}`);
   }
   updateResources();
+  saveGame();
 }
 
 function fightCreep() {
@@ -66,6 +86,11 @@ function fightCreep() {
     const lootXP = Math.floor(Math.random() * 5) + 3;
     gold += lootGold;
     xp += lootXP;
+    if (Math.random() < 0.4) {
+      const item = ["Зелье", "Кольцо", "Свиток"][Math.floor(Math.random() * 3)];
+      inventory.push(item);
+      alert(`Вы добыли предмет: ${item}`);
+    }
     alert(`Победа! +${lootGold} золота, +${lootXP} XP`);
     checkLevelUp();
   } else {
@@ -82,7 +107,36 @@ function checkLevelUp() {
   }
 }
 
+function saveGame() {
+  const save = {
+    gold,
+    wood,
+    xp,
+    level,
+    heroPos,
+    inventory,
+    heroClass
+  };
+  localStorage.setItem("wc3save", JSON.stringify(save));
+}
+
+function loadGame() {
+  const data = localStorage.getItem("wc3save");
+  if (data) {
+    const save = JSON.parse(data);
+    gold = save.gold;
+    wood = save.wood;
+    xp = save.xp;
+    level = save.level;
+    heroPos = save.heroPos;
+    inventory = save.inventory || [];
+    heroClass = save.heroClass || "";
+  }
+}
+
 window.onload = () => {
+  chooseHero();
+  loadGame();
   updateResources();
   drawMap();
 };
