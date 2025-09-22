@@ -3,14 +3,14 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Warcraft III Loading</title>
+  <title>Загрузка Warcraft III</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: url('https://upload.wikimedia.org/wikipedia/en/5/5d/WC3FT_Cover_Art.jpg') no-repeat center center fixed;
+      background: url('loading-bg.png') no-repeat center center fixed;
       background-size: cover;
       font-family: 'Arial', sans-serif;
       color: white;
@@ -59,10 +59,7 @@
   <script>
     const progress = document.getElementById("progress-fill");
     setTimeout(() => { progress.style.width = "100%"; }, 100);
-
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 2500);
+    setTimeout(() => { window.location.href = "index.html"; }, 2500);
   </script>
 </body>
 </html>
