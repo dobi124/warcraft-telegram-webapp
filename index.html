@@ -2,16 +2,125 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Меню</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram WebApp</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
+    /* Загрузочный экран */
+    #splash {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: url("background.jpg") no-repeat center center / cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 1s ease;
+      z-index: 10;
+    }
+
+    #splash.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Лоадер */
+    .loader {
+      border: 8px solid rgba(255, 255, 255, 0.3);
+      border-top: 8px solid white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Видео */
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    /* Основной контент */
+    #content {
+      width: 100%;
+      height: 100%;
+      display: none;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+    }
+  </style>
 </head>
 <body>
-  <div class="menu">
-    <a href="#character" class="btn">ПЕРСОНАЖ</a>
-    <a href="#map" class="btn">КАРТА</a>
-    <a href="#quests" class="btn">КВЕСТЫ</a>
-    <a href="#airdrop" class="btn">AIRDROP</a>
+  <!-- Загрузочный экран -->
+  <div id="splash">
+    <div class="loader"></div>
   </div>
-  <a href="#exit" class="btn exit">ВЫЙТИ</a>
+
+  <!-- Видео -->
+  <video id="video" autoplay muted playsinline>
+    <source src="video.mp4" type="video/mp4">
+    Ваш браузер не поддерживает видео.
+  </video>
+
+  <!-- Основной контент -->
+  <div id="content">
+    🎉 Добро пожаловать в приложение!
+  </div>
+
+  <script>
+    const splash = document.getElementById("splash");
+    const video = document.getElementById("video");
+    const content = document.getElementById("content");
+
+    // Проверяем: смотрел ли пользователь видео
+    const alreadyWatched = localStorage.getItem("videoWatched");
+
+    if (alreadyWatched) {
+      // Пропускаем загрузку и видео
+      splash.style.display = "none";
+      video.style.display = "none";
+      content.style.display = "flex";
+    } else {
+      // Первый визит: ждём загрузку видео
+      video.addEventListener("canplaythrough", () => {
+        splash.classList.add("fade-out");
+
+        setTimeout(() => {
+          splash.style.display = "none";
+          video.style.display = "block";
+          video.play().catch(err => {
+            console.log("Автовоспроизведение заблокировано:", err);
+          });
+        }, 1000);
+      });
+
+      // Когда видео закончилось — показываем контент
+      video.addEventListener("ended", () => {
+        video.style.display = "none";
+        content.style.display = "flex";
+        localStorage.setItem("videoWatched", "true");
+      });
+    }
+  </script>
 </body>
 </html>
