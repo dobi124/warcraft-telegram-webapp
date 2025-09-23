@@ -1,128 +1,35 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Telegram WebApp</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      background: black;
-    }
+<script>
+  const splash = document.getElementById("splash");
+  const video = document.getElementById("video");
+  const content = document.getElementById("content");
 
-    /* Загрузочный экран */
-    #splash {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: url("background.png") no-repeat center center / cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 1s ease;
-      z-index: 10;
-    }
+  const alreadyWatched = localStorage.getItem("videoWatched");
 
-    #splash.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Лоадер */
-    .loader {
-      border: 8px solid rgba(255, 255, 255, 0.3);
-      border-top: 8px solid white;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Видео */
-    #video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-
-    /* Экран после видео */
-    #content {
-      width: 100%;
-      height: 100%;
-      display: none;
-      background: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-
-    #content.show {
-      opacity: 1;
-    }
-  </style>
-</head>
-<body>
-  <!-- Загрузочный экран -->
-  <div id="splash">
-    <div class="loader"></div>
-  </div>
-
-  <!-- Видео -->
-  <video id="video" autoplay muted playsinline>
-    <source src="video.mp4" type="video/mp4">
-    Ваш браузер не поддерживает видео.
-  </video>
-
-  <!-- Экран после видео (бегунок) -->
-  <div id="content">
-    <div class="loader"></div>
-  </div>
-
-  <script>
-    const splash = document.getElementById("splash");
-    const video = document.getElementById("video");
-    const content = document.getElementById("content");
-
-    const alreadyWatched = localStorage.getItem("videoWatched");
+  setTimeout(() => {
+    splash.classList.add("fade-out");
 
     setTimeout(() => {
-      splash.classList.add("fade-out");
+      splash.style.display = "none";
 
-      setTimeout(() => {
-        splash.style.display = "none";
+      if (alreadyWatched) {
+        // Если видео уже смотрели → сразу показываем бегунок
+        content.style.display = "flex";
+        setTimeout(() => content.classList.add("show"), 50);
+      } else {
+        // Первый раз → показываем видео
+        video.style.display = "block";
+        video.volume = 0.5; // Установим громкость 50%
+        video.play().catch(err => {
+          console.log("Автовоспроизведение заблокировано:", err);
+        });
 
-        if (alreadyWatched) {
-          // Если видео уже смотрели → сразу показываем бегунок
+        video.addEventListener("ended", () => {
+          video.style.display = "none";
           content.style.display = "flex";
           setTimeout(() => content.classList.add("show"), 50);
-        } else {
-          // Первый раз → показываем видео
-          video.style.display = "block";
-          video.play().catch(err => {
-            console.log("Автовоспроизведение заблокировано:", err);
-          });
-
-          video.addEventListener("ended", () => {
-            video.style.display = "none";
-            content.style.display = "flex";
-            setTimeout(() => content.classList.add("show"), 50);
-            localStorage.setItem("videoWatched", "true");
-          });
-        }
-      }, 1000); // ждём анимацию скрытия
-    }, 5000); // загрузочный экран 5 секунд
-  </script>
-</body>
-</html>
+          localStorage.setItem("videoWatched", "true");
+        });
+      }
+    }, 1000); // ждём анимацию скрытия
+  }, 5000); // загрузочный экран 5 секунд
+</script>
