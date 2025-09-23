@@ -55,18 +55,21 @@
       display: none;
     }
 
-    /* Основной контент */
+    /* Экран после видео */
     #content {
       width: 100%;
       height: 100%;
       display: none;
       background: #111;
-      color: white;
-      font-family: sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 24px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    #content.show {
+      opacity: 1;
     }
   </style>
 </head>
@@ -82,9 +85,9 @@
     Ваш браузер не поддерживает видео.
   </video>
 
-  <!-- Основной контент -->
+  <!-- Экран после видео (бегунок) -->
   <div id="content">
-    🎉 Добро пожаловать в приложение!
+    <div class="loader"></div>
   </div>
 
   <script>
@@ -92,35 +95,34 @@
     const video = document.getElementById("video");
     const content = document.getElementById("content");
 
-    // Проверяем: смотрел ли пользователь видео
     const alreadyWatched = localStorage.getItem("videoWatched");
 
-    if (alreadyWatched) {
-      // Пропускаем загрузку и видео
-      splash.style.display = "none";
-      video.style.display = "none";
-      content.style.display = "flex";
-    } else {
-      // Первый визит: ждём загрузку видео
-      video.addEventListener("canplaythrough", () => {
-        splash.classList.add("fade-out");
+    setTimeout(() => {
+      splash.classList.add("fade-out");
 
-        setTimeout(() => {
-          splash.style.display = "none";
+      setTimeout(() => {
+        splash.style.display = "none";
+
+        if (alreadyWatched) {
+          // Если видео уже смотрели → сразу показываем бегунок
+          content.style.display = "flex";
+          setTimeout(() => content.classList.add("show"), 50);
+        } else {
+          // Первый раз → показываем видео
           video.style.display = "block";
           video.play().catch(err => {
             console.log("Автовоспроизведение заблокировано:", err);
           });
-        }, 1000);
-      });
 
-      // Когда видео закончилось — показываем контент
-      video.addEventListener("ended", () => {
-        video.style.display = "none";
-        content.style.display = "flex";
-        localStorage.setItem("videoWatched", "true");
-      });
-    }
+          video.addEventListener("ended", () => {
+            video.style.display = "none";
+            content.style.display = "flex";
+            setTimeout(() => content.classList.add("show"), 50);
+            localStorage.setItem("videoWatched", "true");
+          });
+        }
+      }, 1000); // ждём анимацию скрытия
+    }, 5000); // загрузочный экран 5 секунд
   </script>
 </body>
 </html>
