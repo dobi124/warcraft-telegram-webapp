@@ -3,153 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Telegram WebApp</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      background: black;
-      font-family: "Trebuchet MS", sans-serif;
-    }
-
-    /* Загрузочный экран */
-    #splash {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: url("background.png") no-repeat center center / cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 1s ease;
-      z-index: 10;
-    }
-
-    #splash.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Лоадер */
-    .loader {
-      border: 8px solid rgba(255, 255, 255, 0.3);
-      border-top: 8px solid white;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Видео */
-    #video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: none;
-    }
-
-    /* Меню */
-    #menu {
-      width: 100%;
-      height: 100%;
-      background: url("background1.png") no-repeat center center / cover;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
-
-    #menu.show {
-      display: flex;
-      opacity: 1;
-    }
-
-    .menu-btn {
-      background: linear-gradient(#083d7a, #002a55);
-      border: 3px solid #3b2b1d;
-      color: gold;
-      font-size: 22px;
-      font-weight: bold;
-      padding: 15px 40px;
-      margin: 12px;
-      cursor: pointer;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.7);
-      transition: all 0.2s ease;
-      min-width: 250px;
-      text-align: center;
-    }
-
-    .menu-btn:hover {
-      background: linear-gradient(#1250a6, #003b77);
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(255,215,0,0.7);
-    }
-  </style>
+  <title>War Farm</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Загрузочный экран -->
-  <div id="splash">
-    <div class="loader"></div>
+  <div id="loader">
+    <div class="overlay"></div>
+    <img src="1000017089.png" alt="Loading..." class="logo">
+    <p>Загрузка...</p>
   </div>
 
-  <!-- Видео -->
-  <video id="video" autoplay muted playsinline>
-    <source src="video.mp4" type="video/mp4">
-    Ваш браузер не поддерживает видео.
-  </video>
-
-  <!-- Меню -->
-  <div id="menu">
-    <button class="menu-btn" onclick="alert('Одиночная игра!')">ОДИНОЧНАЯ ИГРА</button>
-    <button class="menu-btn" onclick="alert('Сетевая игра!')">СЕТЕВАЯ ИГРА</button>
-    <button class="menu-btn" onclick="alert('Локальная сеть!')">ЛОКАЛЬНАЯ СЕТЬ</button>
-    <button class="menu-btn" onclick="alert('Настройки!')">НАСТРОЙКИ</button>
-    <button class="menu-btn" onclick="alert('Выход!')">ВЫЙТИ</button>
+  <div id="app" style="display:none;">
+    <h1>Добро пожаловать в War Farm!</h1>
   </div>
 
-  <script>
-    const splash = document.getElementById("splash");
-    const video = document.getElementById("video");
-    const menu = document.getElementById("menu");
-
-    const alreadyWatched = localStorage.getItem("videoWatched");
-
-    setTimeout(() => {
-      splash.classList.add("fade-out");
-
-      setTimeout(() => {
-        splash.style.display = "none";
-
-        if (alreadyWatched) {
-          // Если видео уже смотрели → сразу меню
-          menu.classList.add("show");
-        } else {
-          // Первый раз → показываем видео
-          video.style.display = "block";
-          video.volume = 0.5;
-          video.play().catch(err => {
-            console.log("Автовоспроизведение заблокировано:", err);
-          });
-
-          video.addEventListener("ended", () => {
-            video.style.display = "none";
-            menu.classList.add("show");
-            localStorage.setItem("videoWatched", "true");
-          });
-        }
-      }, 1000); // ждём анимацию скрытия
-    }, 5000); // загрузочный экран 5 секунд
-  </script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
