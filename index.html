@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Camp WebApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.0/dist/phaser.min.js"></script>
+  <style>
+    html,body{height:100%;margin:0;background:#e7f2e7;font-family:system-ui,Arial}
+    #game{width:100vw;height:100vh;display:block}
+    .overlay{position:fixed;inset:0;pointer-events:none}
+    .left, .right{position:absolute;top:88px;display:flex;flex-direction:column;gap:12px}
+    .left{left:12px}
+    .right{right:12px}
+    .bottom{position:absolute;left:0;right:0;bottom:0;height:120px;display:flex;justify-content:space-around;align-items:center;padding:10px 12px;background:rgba(255,255,255,.85);backdrop-filter:blur(4px)}
+    .bottom img{height:90px}
+    .badge{position:absolute;right:8px;top:8px;padding:4px 8px;border-radius:12px;background:#2b2b2b;color:#fff;font-weight:700;font-size:14px}
+    .hud-top{position:absolute;left:8px;right:8px;top:8px;display:flex;align-items:center;gap:10px}
+    .hud-chip{background:rgba(255,255,255,.9);border-radius:10px;padding:6px 10px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+
+  <!-- UI overlays -->
+  <div class="overlay">
+    <div class="hud-top">
+      <div class="hud-chip">VIP 1</div>
+      <div class="hud-chip">L15</div>
+      <div class="hud-chip">102,5K PR</div>
+      <div class="hud-chip">⚡ 5</div>
+      <div class="hud-chip">🐾 370</div>
+      <div class="hud-chip">🟡 6</div>
+      <div class="hud-chip">➕</div>
+    </div>
+
+    <div class="left">
+      <img src="assets/left_clipboard.png" alt="clipboard">
+      <img src="assets/left_g.png" alt="g">
+      <img src="assets/left_camera.png" alt="camera">
+    </div>
+
+    <div class="right">
+      <img src="assets/btn_map.png" alt="map">
+      <img src="assets/btn_quests.png" alt="quests">
+      <img src="assets/ribbon_timer.png" alt="timer">
+    </div>
+
+    <div class="bottom">
+      <img src="assets/tab_control.png" alt="control">
+      <img src="assets/tab_team.png" alt="team">
+      <img src="assets/tab_shop_active.png" alt="shop">
+      <img src="assets/tab_me.png" alt="me">
+      <img src="assets/tab_social.png" alt="social">
+    </div>
+  </div>
+
+  <script>
+    const width=720, height=1280, TILE=128;
+    class Scene extends Phaser.Scene{
+      constructor(){super('s')}
+      preload(){
+        this.load.image('grass','assets/tile_grass.png')
+        this.load.image('dirt','assets/tile_dirt.png')
+        this.load.image('rock','assets/rock_platform.png')
+        this.load.spritesheet('hero','assets/hero_idle_strip.png',{frameWidth:64,frameHeight:64})
+        this.load.spritesheet('pet','assets/pet_idle_strip.png',{frameWidth:64,frameHeight:64})
+        this.load.image('goal','assets/bubble_goal.png')
+      }
+      create(){
+        // grass field
+        const cols=Math.ceil(width/TILE)+2, rows=Math.ceil(height/TILE)+2;
+        for(let r=0;r<rows;r++){
+          for(let c=0;c<cols;c++){
+            const x=c*TILE+TILE/2, y=r*TILE+TILE/2;
+            this.add.image(x,y,'grass').setDepth(0);
+          }
+        }
+        // meandering dirt path
+        const path=[2,2,2,3,3,3,4,4,4,5,5,6,6,6,7,7];
+        path.forEach((pc,i)=>{
+          const x=pc*TILE+TILE/2;
+          const y=i*TILE+TILE/2+200;
+          this.add.image(x,y,'dirt').setDepth(1);
+        });
+        // rock platform + goal bubble (as NPC placeholder)
+        this.add.image(300,520,'rock').setDepth(3);
+        this.add.image(240,410,'goal').setDepth(4);
+
+        this.hero=this.physics.add.sprite(620,1080,'hero',0).setDepth(5);
+        this.pet=this.physics.add.sprite(560,1120,'pet',0).setDepth(5);
+
+        this.anims.create({key:'hero_idle', frames:this.anims.generateFrameNumbers('hero',{start:0,end:3}), frameRate:6, repeat:-1});
+        this.anims.create({key:'pet_idle', frames:this.anims.generateFrameNumbers('pet',{start:0,end:3}), frameRate:6, repeat:-1});
+        this.hero.play('hero_idle'); this.pet.play('pet_idle');
+
+        this.cameras.main.setBounds(0,0,width,height);
+        this.physics.world.setBounds(0,0,width,height);
+        this.cameras.main.startFollow(this.hero,true,0.08,0.08);
+
+        this.target = new Phaser.Math.Vector2(this.hero.x,this.hero.y);
+        this.input.on('pointerdown', p => this.target.set(p.worldX,p.worldY));
+      }
+      update(_,delta){
+        const dt=delta/1000, speed=180;
+        const v=new Phaser.Math.Vector2(this.target.x-this.hero.x, this.target.y-this.hero.y);
+        if(v.length()>4){ v.normalize().scale(speed*dt); this.hero.x+=v.x; this.hero.y+=v.y; }
+        // pet follow
+        const desired=new Phaser.Math.Vector2(this.hero.x-40, this.hero.y+20);
+        const pv=new Phaser.Math.Vector2(desired.x-this.pet.x, desired.y-this.pet.y);
+        if(pv.length()>2){ pv.normalize().scale(150*dt); this.pet.x+=pv.x; this.pet.y+=pv.y; }
+      }
+    }
+    const game = new Phaser.Game({
+      type: Phaser.AUTO,
+      width: 720, height: 1280, backgroundColor:'#cfe8c8',
+      parent: 'game',
+      physics:{default:'arcade'},
+      scene:[Scene],
+      scale:{ mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
+    });
+  </script>
+</body>
+</html>

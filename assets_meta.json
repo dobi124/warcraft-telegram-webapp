@@ -1,0 +1,16 @@
+{
+  "hero_idle": {
+    "frameWidth": 64,
+    "frameHeight": 64,
+    "frames": 4,
+    "fps": 6,
+    "image": "hero_idle_strip.png"
+  },
+  "pet_idle": {
+    "frameWidth": 64,
+    "frameHeight": 64,
+    "frames": 4,
+    "fps": 6,
+    "image": "pet_idle_strip.png"
+  }
+}
